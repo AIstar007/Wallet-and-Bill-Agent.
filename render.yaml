@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: wallet-bill-agent-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+        # Point this at a managed Postgres instance for anything beyond a
+        # demo — SQLite works locally but Render's filesystem isn't
+        # persistent across deploys.
