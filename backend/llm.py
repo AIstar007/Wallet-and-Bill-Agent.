@@ -1,10 +1,16 @@
 """
-Real LLM call wrapper using Azure OpenAI. Returns None if the required
-Azure OpenAI environment variables are not set, so /chat falls back
-to its stub logic and the whole stack still runs with zero setup.
+Azure OpenAI LLM wrapper.
+
+Supports:
+- Standard completion (llm_call)
+- Streaming completion (llm_stream)
+
+Returns None if Azure OpenAI is not configured so the application can
+fall back to its stub responses.
 """
 
 import os
+from typing import Generator
 
 _client = None
 
@@ -32,6 +38,9 @@ def _get_client():
 
 
 def llm_call(system_prompt: str, user_message: str) -> str | None:
+    """
+    Standard (non-streaming) response.
+    """
     client = _get_client()
 
     if client is None:
@@ -40,10 +49,57 @@ def llm_call(system_prompt: str, user_message: str) -> str | None:
     response = client.chat.completions.create(
         model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message},
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_message,
+            },
         ],
         temperature=0.3,
     )
 
     return response.choices[0].message.content
+
+
+def llm_stream(
+    system_prompt: str,
+    user_message: str,
+) -> Generator[str, None, None]:
+    """
+    Streaming Azure OpenAI response.
+
+    Yields text chunks as they arrive.
+    """
+
+    client = _get_client()
+
+    if client is None:
+        return
+
+    stream = client.chat.completions.create(
+        model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+        messages=[
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_message,
+            },
+        ],
+        temperature=0.3,
+        stream=True,
+    )
+
+    for chunk in stream:
+        if not chunk.choices:
+            continue
+
+        delta = chunk.choices[0].delta.content
+
+        if delta:
+            yield delta
