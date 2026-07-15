@@ -165,7 +165,7 @@ npm run dev
 
 Visit `http://localhost:3000`.
 
-### (Optional) Add OpenAI Key
+### (Optional) Add Azure OpenAI Key
 
 ```bash
 cp backend/.env.example backend/.env
