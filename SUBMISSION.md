@@ -39,7 +39,7 @@ in the other two submissions.
   logic baked into the LLM layer.
 
 ## Tech stack
-Next.js 14 · TypeScript · Tailwind · FastAPI · SQLite/PostgreSQL · SQLAlchemy · OpenAI API ·
+Next.js 14 · TypeScript · Tailwind · FastAPI · SQLite/PostgreSQL · SQLAlchemy · Azure OpenAI API ·
 FAISS (vector search) · Docker Compose
 
 ## What's in this scaffold
