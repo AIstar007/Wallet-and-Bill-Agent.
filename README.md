@@ -153,7 +153,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-> ✅ **Demo data seeds automatically on startup** — idempotent via FastAPI `lifespan` handler. Safe to restart as many times as needed.
+> ✅ **Demo data seeds automatically on startup** — idempotent via Fast `lifespan` handler. Safe to restart as many times as needed.
 
 ### Frontend
 
@@ -169,10 +169,10 @@ Visit `http://localhost:3000`.
 
 ```bash
 cp backend/.env.example backend/.env
-# Add OPENAI_API_KEY to backend/.env
+# Add AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_VERSION, AZURE_OPENAI_DEPLOYMENT to backend/.env
 ```
 
-> ✅ **Zero setup required to see it work** — `/chat` falls back to stub answer text if no `OPENAI_API_KEY` is set. Bill lookup, DB queries, and FAISS plan matching are all real regardless.
+> ✅ **Zero setup required to see it work** — `/chat` falls back to stub answer text if no `AZURE_OPENAI_API_KEY` is set. Bill lookup, DB queries, and FAISS plan matching are all real regardless.
 
 ### Docker Compose (full stack + Postgres)
 
@@ -245,7 +245,7 @@ Plan recommendations use a real FAISS index, not a hardcoded list. The same depe
 API base URL is configurable via `NEXT_PUBLIC_API_URL` (not hardcoded to `localhost:8000`). Backend CORS is configurable via `FRONTEND_ORIGIN`. Both sides are deploy-ready, not just localhost-ready.
 
 ### Injectable LLM — Testable Without an API Key
-The `/chat` endpoint conditionally wires in the real OpenAI client only when `OPENAI_API_KEY` is present. Without it, stub answer text is returned while DB lookup and FAISS search still execute — making the full pipeline testable with zero external dependencies.
+The `/chat` endpoint conditionally wires in the real OpenAI client only when `AZURE_OPENAI_API_KEY` is present. Without it, stub answer text is returned while DB lookup and FAISS search still execute — making the full pipeline testable with zero external dependencies.
 
 ---
 
