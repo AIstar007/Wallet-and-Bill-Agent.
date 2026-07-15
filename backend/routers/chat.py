@@ -17,7 +17,18 @@ from backend.plan_search import PlanSearchIndex
 
 router = APIRouter()
 
-ACTIVE_LLM_CALL = real_llm_call if os.environ.get("OPENAI_API_KEY") else None
+ACTIVE_LLM_CALL = (
+    real_llm_call
+    if all(
+        [
+            os.getenv("AZURE_OPENAI_API_KEY"),
+            os.getenv("AZURE_OPENAI_ENDPOINT"),
+            os.getenv("AZURE_OPENAI_API_VERSION"),
+            os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+        ]
+    )
+    else None
+)
 
 SYSTEM_PROMPT = """You are a billing & plans assistant for a telecom customer.
 Explain charges in plain language and compare plans ONLY using the data provided.
