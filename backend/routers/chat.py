@@ -158,33 +158,36 @@ def chat_stream(
         req.message,
     )
 
-    if not ACTIVE_LLM:
+    prompt = (
+        f"Context:\n{context}\n\n"
+        f"Question:\n{req.message}"
+    )
 
-        def stub():
-            yield (
-                "Streaming isn't available because "
-                "Azure OpenAI isn't configured."
-            )
+    def event_stream():
+        if not ACTIVE_LLM:
+            yield "data: Streaming isn't available because Azure OpenAI isn't configured.\n\n"
+            yield "event: done\ndata: [DONE]\n\n"
+            return
 
-        return StreamingResponse(
-            stub(),
-            media_type="text/plain",
-        )
+        try:
+            for chunk in real_llm_stream(
+                SYSTEM_PROMPT,
+                prompt,
+            ):
+                if chunk:
+                    yield f"data: {chunk}\n\n"
 
-    def generate():
+            yield "event: done\ndata: [DONE]\n\n"
 
-        prompt = (
-            f"Context:\n{context}\n\n"
-            f"Question:\n{req.message}"
-        )
-
-        for chunk in real_llm_stream(
-            SYSTEM_PROMPT,
-            prompt,
-        ):
-            yield chunk
+        except Exception as exc:
+            yield f"event: error\ndata: {str(exc)}\n\n"
 
     return StreamingResponse(
-        generate(),
-        media_type="text/plain",
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
